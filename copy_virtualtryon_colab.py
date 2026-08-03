@@ -132,7 +132,6 @@ def remove_face_from_mask(image: Image.Image, mask: Image.Image) -> Image.Image:
     w    = bbox[2] - bbox[0]
     h    = bbox[3] - bbox[1]
 
-    # Expand bounding box slightly so hair/neck are preserved
     bbox[0] -= w * 0.5
     bbox[2] += w * 0.5
     bbox[1] -= h * 0.5
@@ -223,7 +222,7 @@ pipe.set_ip_adapter_scale(1.9)  # 0 to 1 — higher = clothing more faithfully c
 #   strength        → higher = more creative but deviates more from original body
 #   guidance_scale  → higher = sticks closer to the text prompt
 #   num_steps       → more = better quality but slower (50 is a good balance)
-#   ip_adapter_scale (set above) → higher = clothing image is more faithfully preserved
+#   ip_adapter_scale (1.0) → higher = clothing image is more faithfully preserved| (0-1) 1 is max
 # ── Cell 10: Run try-on generation ───────────────────────────────────────────
 
 if gender == "male":
@@ -268,8 +267,8 @@ result = pipe(
     image            = model_image_resized,
     mask_image       = mask_image_resized,
     ip_adapter_image = clothing_image,
-    strength         = 0.90,    # raised from 0.60 — gives SDXL room to fully replace garment shape, no leftover bulge
-    guidance_scale   = 8.0,     # slightly lowered from 9.5 — too high can over-emphasize "natural folds" into exaggerated puffiness
+    strength         = 0.90,    
+    guidance_scale   = 8.0,     # keep it < 9.0 — too high can over-emphasize "natural folds" into exaggerated puffiness
     num_inference_steps = 50,   # 50 is the sweet spot;
     generator        = generator,
 ).images[0]
